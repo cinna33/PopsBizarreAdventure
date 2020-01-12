@@ -26,6 +26,7 @@ def main():
     pygame.mixer.init()
     # le titre en fenêtre de jeu
     pygame.display.set_caption("Pops' Bizarre Adventure")
+    #active le module de texte
     pygame.font.init()
     
     #La police d'écriture du jeu
@@ -56,7 +57,7 @@ def main():
             # Si une touche est pressée ...
             elif event.type == pygame.KEYDOWN:
                 # Si c'est pendant un dialogue :
-                if Pops.dialogue:
+                if Pops.dialogue_get():
                     # On bloque les commandes
                     Pops.commande_set(False) 
        
@@ -64,9 +65,10 @@ def main():
         screen.fill(black)
         
         #Commandes
-        if Pops.commande:
+        #Si les commandes sont activées
+        if Pops.commande_get():
             #Shift
-            if key[pygame.K_LSHIFT] and Pops.vel<50 :
+            if key[pygame.K_LSHIFT] and Pops.vel<Pops.acc :
                 Pops.vel += Pops.acc
             elif not key[pygame.K_LSHIFT]:
                     Pops.vel = Pops.slow
@@ -105,18 +107,29 @@ def main():
             elif key[pygame.K_UP] and Pops.y>0:
                 Pops.y -= Pops.vel
                 Pops.set_back()
-        
+            # si on appuie sur echap
             if key[pygame.K_ESCAPE]:
+                # le jeu se ferme
                 running = False
+            # puis on affiche le sprite
             Pops.walking(screen)
+            # puis on met à jour l'écran
             pygame.display.update()
+        # vérifie s'il y un évenement genre appuyer sur une touche
         pygame.event.pump()
+        # récupère les évenements dans la queue
         for event in pygame.event.get():
+            #si c'est une touche et la touche est z (problème donc pour tester faut appuyer sur w)
             if event.type == pygame.KEYDOWN and event.key == pygame.K_z:
-                Pops.dialogue = True
-        if Pops.dialogue:
+                #on active les dialogues
+                Pops.set_dialogue(True)
+        # si on actives les dialogues
+        if Pops.dialogue_get():
+            # on active l'animation du texte avec pour paramètre le texte que l'on veut
             animation_text(text,screen,Pops)
+        #puis on met à jour l'écran
         pygame.display.update()
+    #quitter pygame donc arrêter le programme
     pygame.quit()            
  
    
