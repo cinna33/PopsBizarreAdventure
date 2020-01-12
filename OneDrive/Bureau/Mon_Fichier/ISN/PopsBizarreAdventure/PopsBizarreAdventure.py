@@ -7,6 +7,11 @@ Created on Thu Oct 24 16:55:24 2019
 
 import pygame
 from ressource import Sprite,animation_text
+#Petit disclaimer : le jeu doit être pensé pour fonctionner à chaque frame
+#Par exemple, ne faites pas de boucles for pour faire une action plusieurs fois
+#comme on a pu le faire dans le Mini-projet avec turtle
+#Cela paralyse le fonctionnement du jeu
+#Préférez créer une liste puis son indice qui augmente à chaque frame 
 
 # define a main function
 def main():
@@ -18,7 +23,7 @@ def main():
        
     loading = pygame.image.load # pour que ce soit plus rapide pour charger des images  
     
-    Pops    = Sprite(350,250,100,200,5) # toutes les caractéristiques de Pops
+    Pops    = Sprite(350,250,100,200,5) # toutes les caractéristiques de Pops (cf ressource.py)
     
     # initialize the pygame module
     pygame.init()
@@ -26,6 +31,7 @@ def main():
     pygame.mixer.init()
     # le titre en fenêtre de jeu
     pygame.display.set_caption("Pops' Bizarre Adventure")
+    #on lance le module qui gère les textes
     pygame.font.init()
     
     #La police d'écriture du jeu
@@ -66,7 +72,7 @@ def main():
         #Commandes
         if Pops.commande:
             #Shift
-            if key[pygame.K_LSHIFT] and Pops.vel<50 :
+            if key[pygame.K_LSHIFT] and Pops.vel<Pops.acc :
                 Pops.vel += Pops.acc
             elif not key[pygame.K_LSHIFT]:
                     Pops.vel = Pops.slow
@@ -106,16 +112,29 @@ def main():
                 Pops.y -= Pops.vel
                 Pops.set_back()
         
+            #Si on appuie sur echap       
             if key[pygame.K_ESCAPE]:
+                #Le programme se ferme
                 running = False
+                
+            #On appelle la méthode qui permet d'afficher le sprite
             Pops.walking(screen)
+            #Puis on met à jour à l'écran qui affichera tout à l'écran
             pygame.display.update()
+        # Le programme recherche si un évenement s'est produit par exemple appuyer sur une touche
+        # Sans ça le programme pourrait penser qu'il a planté donc arrêter de fonctionner
         pygame.event.pump()
+        # Si il y a un évenement :
         for event in pygame.event.get():
+            #Si cet évenment est une touche et que c'est z : 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_z:
+                #On active les dialogues
                 Pops.dialogue = True
+        #Si les dialogues sont activés
         if Pops.dialogue:
+            #On appelle la fonction qui affiche les textes avec en paramètre le texte qu'on veut afficher
             animation_text(text,screen,Pops)
+        #Puis on met à jour l'écran une dernière fois pour s'assurer    
         pygame.display.update()
     pygame.quit()            
  
