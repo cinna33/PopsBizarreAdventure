@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
 
 import pygame
-from ressource import Sprite,animation_text,Event
+from ressource import Sprite,Event,Option
+from animation import animation_text
 
 # définition d'une fonction qui lance le menu principal au lancement du jeu 
 
 
 # define a main function
 def main():
-    width   = pygame.display.Info().current_w  # caractéristiques de la fenêtre
-    height  = pygame.display.Info().current_h
-    #ratio qui aide à redimensionner tous les éléments graphiques
-    #si égal à 1, veut dire que le jeu est dans les dimensions de base c'est à dire 1920*1080
-    ratiox = width/1920
-    ratioy = height/1080
+    option = Option()
+    width   = option.w  # caractéristiques de la fenêtre
+    height  = option.h
     black = pygame.Color(0,0,0) # crée un objet couleur  en ayant référence RGB du noir
     fade  = pygame.Surface((width,height)) 
     fade.fill((0,0,0))
@@ -24,11 +22,12 @@ def main():
        
     loading = pygame.image.load # pour que ce soit plus rapide pour charger des images  
     
-    Pops    = Sprite(350,250,100,200,5) # toutes les caractéristiques de Pops
+    Pops    = Sprite(350,250,100,200,10) # toutes les caractéristiques de Pops
     
     maps = loading("map.png")
     #redimensionne l'image pour qu'elle soit en conformation avec la taille de la fenêtre
-    pygame.transform.scale(maps,(int(2720*ratiox),int(2000*ratioy)))    
+    maps = pygame.transform.scale(maps,(int(1575*option.ratiox),int(941*option.ratioy)))    
+    
     
     # initialize the pygame module
     pygame.init()
@@ -40,7 +39,7 @@ def main():
     pygame.font.init()
     
     #La police d'écriture du jeu
-    font = pygame.font.Font("VCR_OSD_MONO_1.001.ttf",26)   
+    font = pygame.font.Font("VCR_OSD_MONO_1.001.ttf",int(30*option.ratiox))   
     # define a variable to control the main loop
     running = True
     # Textes pour tester les boites de dialogues
@@ -48,30 +47,32 @@ def main():
     #Objet qui permet de contrôler le nombre de frame et le temps
     clock = pygame.time.Clock()
     starting = Event()
+    hitbox_pops = pygame.Rect(Pops.x,Pops.y,97*option.ratiox,327*option.ratioy)
     
     # définiton d'une fonction pour le menu principal au lancement du jeu
     def menu(font):  
         screen.fill(black)
         #remplir le fond de la couleur
-        hitbox_lancerjeu = pygame.Rect(480,300,200,50)
+        hitbox_lancerjeu = pygame.Rect(800,400,200,50)
         mousepos = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()[0]
         if hitbox_lancerjeu.collidepoint(mousepos[0],mousepos[1]): 
-            screen.blit(font.render("Lancer jeu",False,red),(480,330))
+            screen.blit(font.render("Lancer jeu",False,red),(800,400))
             if click:
                 starting.set_fadetoblack(True)
                 starting.set_menu(False)
                 
         else:
-            screen.blit(font.render("Lancer jeu",False,white),(480,330))
+            screen.blit(font.render("Lancer jeu",False,white),(800,400))
             
         pygame.display.update()
             
     # définition de la fonction du jeu principal
     def game(key):
-         # On remplit le fond par du noir
-        screen.fill(black)
-        screen.blit(maps,(0,0))
+        if not Pops.dialogue_get():
+            # On remplit le fond par du noir
+            screen.fill(black)
+            screen.blit(maps,(0,0))
         
         #Commandes
         #Si les commandes sont activées
@@ -118,8 +119,9 @@ def main():
                 Pops.set_back()
             # puis on affiche le sprite
             Pops.walking(screen)
+            hitbox_pops.move(Pops.x, Pops.y)
             # puis on met à jour l'écran
-            pygame.display.update()
+            pygame.display.update(hitbox_pops)
        
         
         # vérifie s'il y un évenement genre appuyer sur une touche
@@ -133,21 +135,21 @@ def main():
         # si on actives les dialogues
         if Pops.dialogue_get():
             # on active l'animation du texte avec pour paramètre le texte que l'on veut
-            animation_text(text,screen,Pops)
+            animation_text(text,screen,Pops,font)
         #puis on met à jour l'écran
         pygame.display.update()
     
     # def d'une fonction qui permet de faire un fondu en noir
-    def fadetoblack():
+    def fadetoblack(speed):
         nonlocal fade
         if not starting.fadeout:
-            screen.blit(font.render("Lancer jeu",False,red),(480,330))
+            screen.blit(font.render("Lancer jeu",False,red),(800,400))
             screen.blit(fade,(0,0))
             
             pygame.display.update()
             # si la valeur alpha du noir est en dessous de 255
             if fade.get_alpha() < 255:
-                fade.set_alpha(fade.get_alpha() + 1)
+                fade.set_alpha(fade.get_alpha() + speed)
                 # on incrémente de 1 alpha
                 # si alpha est à son maximum
                 if fade.get_alpha() == 255:
@@ -156,18 +158,16 @@ def main():
                     # on  active le processus inverse
         # si processus inverse activé
         elif starting.fadeout:
-            print("coucou")
             #on baisse alpha
             screen.fill(black)
             screen.blit(maps,(0,0))
             Pops.walking(screen)
             # puis on met à jour l'écran
-            pygame.display.update()
             screen.blit(fade,(0,0))
             
             pygame.display.update()
             if fade.get_alpha() > 0:
-                fade.set_alpha(fade.get_alpha() - 1)
+                fade.set_alpha(fade.get_alpha() - speed)
                 # si alpha est égale à 0
                 if fade.get_alpha() == 0:
                     # on désactive le processus
@@ -178,7 +178,7 @@ def main():
     while running:
         
         # Je bloque tous les évenements avec la souris car ils m'ont bien fait chier
-        clock.tick(60) # contrôle le nombre de frame du jeu
+        clock.tick_busy_loop(60) # contrôle le nombre de frame du jeu
          # On associe keys pour gérer les touches plus efficacement
         key = pygame.key.get_pressed()
         
@@ -202,7 +202,7 @@ def main():
             menu(font)
          
         elif starting.fadetoblack_get():
-            fadetoblack()
+            fadetoblack(5)
         
         elif starting.game_get:
             game(key)
