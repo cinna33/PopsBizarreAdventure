@@ -48,25 +48,25 @@ def main():
     Wleftpops   = []
     for i in range(6):
        
-        frontpops.append(loading("sprite_walking/front/normal/front{}.png".format(i+1)).convert_alpha())
+        frontpops.append(loading("images/sprite_walking/front/normal/front{}.png".format(i+1)).convert_alpha())
         
-        backpops.append(loading("sprite_walking/back/back{}.png".format(i+1)).convert_alpha())
+        backpops.append(loading("images/sprite_walking/back/back{}.png".format(i+1)).convert_alpha())
         
-        rightpops.append(loading("sprite_walking/right/normal/right{}.png".format(i+1)).convert_alpha())
+        rightpops.append(loading("images/sprite_walking/right/normal/right{}.png".format(i+1)).convert_alpha())
         
-        leftpops.append(loading("sprite_walking/left/normal/left{}.png".format(i+1)).convert_alpha())
+        leftpops.append(loading("images/sprite_walking/left/normal/left{}.png".format(i+1)).convert_alpha())
         
-        Wfrontpops.append(loading("sprite_walking/front/wink/front{}.png".format(i+1)).convert_alpha())
+        Wfrontpops.append(loading("images/sprite_walking/front/wink/front{}.png".format(i+1)).convert_alpha())
     
-        Wrightpops.append(loading("sprite_walking/right/wink/right{}.png".format(i+1)).convert_alpha())
+        Wrightpops.append(loading("images/sprite_walking/right/wink/right{}.png".format(i+1)).convert_alpha())
         
-        Wleftpops.append(loading("sprite_walking/left/wink/left{}.png".format(i+1)).convert_alpha())
+        Wleftpops.append(loading("images/sprite_walking/left/wink/left{}.png".format(i+1)).convert_alpha())
     
     
-    maps = loading("map.png").convert_alpha()
-    dialogue_box = loading("dialogue/dialogue_box.png").convert()
+    maps = loading("images/map.png").convert_alpha()
+    dialogue_box = loading("images/dialogue/dialogue_box.png").convert()
 
-    curseur = [loading("dialogue/curseur/Sprite-0001.png").convert_alpha(),loading("dialogue/curseur/Sprite-0002.png").convert_alpha()]
+    curseur = [loading("images/dialogue/curseur/Sprite-0001.png").convert_alpha(),loading("images/dialogue/curseur/Sprite-0002.png").convert_alpha()]
     
     stageWidth, stageHeight = maps.get_rect().size
     startScrollingX = option.mw
@@ -195,7 +195,7 @@ def main():
             
             elif Pops.x > stageLength - startScrollingX:
                 cameraPosX = Pops.x - stageLength + option.w
-
+            #Scrolling
             elif Pops.x >= startScrollingX:
                 cameraPosX = startScrollingX
                 if key[pygame.K_LEFT]:
@@ -206,8 +206,6 @@ def main():
                     velX = 0
                 stagePosX -= velX
             
-            print("Camera : ",cameraPosX)
-            print("x :",Pops.x)
         # puis on affiche le sprite
         screen.fill(black)
         screen.blit(maps,(stagePosX, stagePosY))
