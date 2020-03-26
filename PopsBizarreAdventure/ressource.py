@@ -1,4 +1,4 @@
- # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 Created on Tue Dec 31 12:24:56 2019
 
@@ -6,46 +6,46 @@ Created on Tue Dec 31 12:24:56 2019
 """
 import pygame
 #variable utiles pour les algorithmes plus bas qui sont réinitialisé
+class Option:
+    
+    def __init__(self):
+        self.w  = 1920
+        self.h  = 1080
+        self.mw = int(self.w/2)
+        self.mh = int(self.h/2)
+    # Pour redimensionner la fenêtre
+    def dimension(self,screen):
+        if screen == pygame.display.set_mode((self.w,self.h),pygame.RESIZABLE):
+            screen = pygame.display.set_mode((self.w,self.h),pygame.FULLSCREEN)
+        
+        elif screen == pygame.display.set_mode((self.w,self.h),pygame.FULLSCREEN):
+            screen = pygame.display.set_mode((self.w,self.h),pygame.RESIZABLE)
+        
+        return screen
+option = Option()
 
 nP = 0
 
 frameP = 0
 
 pygame.display.init()
-width   = pygame.display.Info().current_w  # caractéristiques de la fenêtre
-height  = pygame.display.Info().current_h
+
 #ratio qui aide à redimensionner tous les éléments graphiques
 #si égal à 1, veut dire que le jeu est dans les dimensions de base c'est à dire 1920*1080    ratiox = width/1920
 
 #coordonnées du texte dans les dialogues
 loading = pygame.image.load
-frontpops   = []
-backpops    = [] 
-rightpops   = []
-leftpops    = []
-for i in range(6):
-    fronti = pygame.transform.scale(loading("sprite_walking/front/front{}.png".format(i+1)),(int(91*ratiox),int(237*ratioy)))
-    frontpops.append(fronti)
-    backi = pygame.transform.scale(loading("sprite_walking/back/back{}.png".format(i+1)),(int(90*ratiox),int(237*ratioy)))
-    backpops.append(backi)
-    righti = pygame.transform.scale(loading("sprite_walking/right/right{}.png".format(i+1)),(int(79*ratiox),int(237*ratioy)))
-    rightpops.append(righti)
-    lefti = pygame.transform.scale(loading("sprite_walking/left/left{}.png".format(i+1)),(int(77*ratiox),int(237*ratioy)))
-    leftpops.append(lefti)
-
-
 
 class Sprite: #Classe pour définir les attributs d'un sprite rapidement
-    global ratiox,ratioy
+    global option
     
     
-    def __init__(self, x, y, heightP, widthP, vel, option):
-        self.x = x * option.ratiox
-        self.y = y * option.ratioy
-        self.height = heightP * option.ratioy
-        self.width  = widthP * option.ratioy
-        self.vel = self.slow = vel * option.ratioy
-        self.acc = self.slow + 5 * option.ratioy
+    def __init__(self, x, y, widthP, heightP, speed, option):
+        self.x = x
+        self.y = y 
+        self.width = widthP 
+        self.height  = heightP 
+        self.speed = speed 
         self.front  = True
         self.back  = False
         self.right = False
@@ -55,64 +55,52 @@ class Sprite: #Classe pour définir les attributs d'un sprite rapidement
         self.animation = False
         
    
-    def walking(self,screen): #frame à l'image quand il marche sur la carte
-        global frameP,nP,frontpops,backpops
+    def walking(self,screen,positionX,positionY,frontpops,backpops,rightpops,leftpops,Wfrontpops,Wrightpops,Wleftpops): #frame à l'image quand il marche sur la carte
+        global frameP,nP
             
-        if self.front:
+       
             #affiche le sprite de face et etc grâce aux valeurs
             #données par la rubriques Commandes dans PopsBizarreAdventure.py
-            if nP < 5:
-                frameP = 0
-            elif nP >= 6 and nP < 11:
-                frameP = 1
-            elif nP >= 12 and nP < 17:
-                frameP = 4
-            elif nP >= 18 and nP < 23:
-                frameP = 5
-                if nP == 22:
-                    nP = 0
-            nP += 1
-                
-            screen.blit(frontpops[frameP], (self.x,self.y))
+            
+        nP = nP % 208 # toutes les 208 frames
+            
+        if nP%52 < 11:
+            frameP = 0
+        elif nP%52 >= 12 and nP%52 < 23:
+            frameP = 1
+        elif nP%52 >= 24 and nP%52 < 29:
+            frameP = 2
+        elif nP%52 >= 30 and nP%52 < 35:
+            frameP = 3
+        elif nP%52 >= 36 and nP%52 < 41:
+            frameP = 4
+        elif nP%52 >= 42 and nP%52 < 53:
+            frameP = 5
+        nP += 1
+        
+        if self.front:
+            if nP <= 156:
+                screen.blit(frontpops[frameP], (positionX,positionY))
+            else:
+                screen.blit(Wfrontpops[frameP], (positionX,positionY))
+            
         elif self.right:
-            if nP < 5:
-                frameP = 0
-            elif nP >= 6 and nP < 11:
-                frameP = 1
-            elif nP >= 12 and nP < 17:
-                frameP = 4
-            elif nP >= 18 and nP < 23:
-                frameP = 5
-                if nP == 22:
-                    nP = 0
-            nP += 1
-            screen.blit(rightpops[frameP], (self.x,self.y))
+            if nP <= 156:
+                screen.blit(rightpops[frameP], (positionX,positionY))
+            else:
+                screen.blit(Wrightpops[frameP], (positionX,positionY))
+            
         elif self.back:    
-            if nP < 5:
-                frameP = 0
-            elif nP >= 6 and nP < 11:
-                frameP = 1
-            elif nP >= 12 and nP < 17:
-                frameP = 4
-            elif nP >= 18 and nP < 23:
-                frameP = 5
-                if nP == 22:
-                    nP = 0
-            nP += 1
-            screen.blit(backpops[frameP], (self.x,self.y))
+            screen.blit(backpops[frameP], (positionX,positionY))
+        
         elif self.left:
-            if nP < 5:
-                frameP = 0
-            elif nP >= 6 and nP < 11:
-                frameP = 1
-            elif nP >= 12 and nP < 17:
-                frameP = 4
-            elif nP >= 18 and nP < 23:
-                frameP = 5
-                if nP == 22:
+            if nP <= 156:
+                screen.blit(leftpops[frameP], (positionX,positionY)) 
+            else:
+                screen.blit(Wleftpops[frameP], (positionX,positionY))
+                if nP == 208:
                     nP = 0
-            nP += 1
-            screen.blit(leftpops[frameP], (self.x,self.y))    
+        
     #Pour aller plus vite, j'ai créé des méthodes qui tournent le sprite
     def set_right(self):
         self.right = True
@@ -183,19 +171,6 @@ class Event:
     def fadetoblack_get(self):
         return self.fadetoblack
 
-class Option:
-    
-    def __init__(self):
-        self.w = 1920
-        self.h = 1080
-        self.ratiox = 1
-        self.ratioy = 1
-    # Pour redimensionner la fenêtre
-    def dimension(self,width,height):
-        self.w = width
-        self.h = height
-        self.ratiox = int(self.w/1920)
-        self.ratioy = int(self.h/1080)
         
 
     
