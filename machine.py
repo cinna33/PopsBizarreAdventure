@@ -1,4 +1,4 @@
-import pygame # recuperer les composants
+import pygame
 import numpy 
 pygame.init()
 
@@ -7,7 +7,7 @@ class Emplacement(pygame.sprite.Sprite):
 
     def __init__(self, pos_x, pos_y):
         super().__init__()
-        self.image = pygame.image.load('pomme_dore.png')
+        self.image = pygame.image.load('projectile/bar.png').convert
         self.rect = self.image.get_rect()
         self.rect.x = pos_x
         self.rect.y = pos_y
@@ -36,37 +36,40 @@ def lancement():
         fruit = hasard[0]
         jetons_gagnes = fruits_dict_gains[fruit]
         jetons += jetons_gagnes 
-        print(f"Une ligne de {fruit} a été completé ! + {jetons_gagnes} Jetons")
+        jackpot.play()
+        ecran.blit((30,0))
+                
 
  # creation de la fenetre
-largeur = 1920
-hauteur = 1080 
+largeur = 1280
+hauteur = 720
 pygame.display.set_caption("Machine à sous")
-purple = [153, 0, 153] # couleur violette 
+purple = [242, 122, 218] # couleur violette 
+ecran = pygame.display.set_mode((largeur, hauteur), pygame.RESIZABLE)
  
 # argent du joueur
 jetons = 100
 
 # dictionnaire de fruits
-image_test = pygame.image.load('orange.png')
+image_test = pygame.image.load('projectile/bouteille.png')
 fruits_dict = {
-"cerise": pygame.image.load('cerise.png'),
+"bière": pygame.image.load('projectile/bière.png'),
 "ananas": pygame.image.load('ananas.png'),
-"orange": pygame.image.load('orange.png'),
-"pasteque": pygame.image.load('pasteque.png'),
-"pomme_dore": pygame.image.load('pomme_dore.png')
+"bouteille": pygame.image.load('projectile/bouteille.png'),
+"capsule": pygame.image.load('projectile/capsule.png'),
+"bar": pygame.image.load('projectile/bar.png')
 }
 
 # liste stockant le nom de chaque fruit
-fruits = ["ananas", "cerise", "orange", "pasteque", "pomme_dore"]
+fruits = ["ananas", "bière", "bouteille", "capsule", "bar"]
 proba_fruits = [0.2, 0.25, 0.4, 0.1, 0.05]
 
 fruits_dict_gains = {
-"orange": 5,
-"cerise": 15,
-"ananas": 50,
-"pasteque": 150,
-"pomme_dore": 10000
+"bouteille": 5,
+"bière": 15,
+"ananas": 20,
+"capsule": 30,
+"bar": 50
 }
 
  # chargement des emplacements
@@ -89,7 +92,11 @@ emplacements.add(emplacement_droite)
 fond = pygame.image.load('machine3.png')
 police = pygame.font.SysFont("comicsansms", 30)
 
-# boucle pour maintenir la fenetre pygame en eveil
+#différents bruitages
+pygame.mixer.fadeout(300) #Fondu à 300ms de la fin de tous les objets Sound
+jackpot = pygame.mixer.Sound("bruitages/jackpot.wav")
+defaite = pygame.mixer.Sound("bruitages/defaite.wav")
+
 
 
 running = True
@@ -99,13 +106,12 @@ while running:
     ecran.blit(fond, (0, 0))
     emplacements.draw(ecran)
 
-     # afficher son nombre de jetons
+    # afficher son nombre de jetons
     text = police.render(str(jetons) + " jetons", True, (0, 0, 0))
-    text2 = police.render(str("Vous avez perdu") + 'Game Over', True, (0, 0, 0))
     ecran.blit(text, (10, 0))
     
     pygame.display.flip() #rafraichissement de l'écran 
-
+    
     for event in pygame.event.get():
         # verifier si le joueur ferme la fenetre
         if event.type == pygame.QUIT:
@@ -117,12 +123,13 @@ while running:
             if event.key == pygame.K_SPACE and jetons >= 5:
                 lancement() # appeler la fonction
                 jetons -= 5
+                defaite.stop()
                 if jetons == 0: 
-                    ecran.blit(text2, (50, 100))
-                    print(text2)
+                    ecran.blit((30,0))
+                    defaite.play()
             elif event.key == pygame.K_ESCAPE: 
                 running = False 
                 quit()
-                    
+pygame.quit()
 ecran.display.flip() #rafraichir l'écran 
 
